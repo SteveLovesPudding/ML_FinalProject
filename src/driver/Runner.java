@@ -1,14 +1,18 @@
 package driver;
 
 import robotArm.Arm;
+import robotArm.Position;
 
 public class Runner {
 
 	public static void main(String[] args){
-		double[] armLengths = {2.0, 1.3, 2.1};
-		double[] angles = {Math.PI/4, Math.PI/2, Math.PI/2, Math.PI/2, Math.PI/4, Math.PI/2, 1.0, 3.0, 1.0};
+		double[] armLengths = {1.0, 1.0, 2.0};
+		double[][] angles = {new double[]{0,Math.PI/6,0},new double[]{0,0,0},new double[]{0,0,0}};
 		
 		Arm arm = new Arm(armLengths);
-		arm.move(angles);
+		Position p = new Position(); 
+		System.out.println(p);
+		arm.move(angles,p);
+		System.out.println(p);
 	}
 }
