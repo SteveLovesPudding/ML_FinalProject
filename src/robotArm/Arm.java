@@ -82,7 +82,7 @@ public class Arm {
 	 *            wrapper for returning the end position
 	 * @return true if movement is valid, false if invalid
 	 */
-	public boolean move(double angle, Position position) {
+	public boolean move(double[] angle, Position position) {
 
 		double xend = 0, yend = 0, zend = 0;
 		Map<Integer, double[][]> armEnds = new HashMap<Integer, double[][]>();
@@ -97,7 +97,7 @@ public class Arm {
 			begin[1] = yend;
 			begin[2] = zend;
 
-			double[] vector = findOrientation(new double[] { x, y, z }, angle,
+			double[] vector = findOrientation(new double[] { x, y, z }, angle[i],
 					jointDirections[i]);
 			vector = convertToUnitVector(vector);
 			x = vector[0];

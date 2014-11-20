@@ -10,12 +10,12 @@ public class Runner {
 		double[] armLengths = {1.0};
 		JointDirection[] jointDirections = {JointDirection.Z}; 
 		System.out.println(Math.cos(Math.PI/2));
-		double angle = Math.PI/2;
+		double[] angles = {Math.PI/2};
 		
 		Arm arm = new Arm(armLengths, jointDirections);
 		Position p = new Position(); 
 		System.out.println(p);
-		arm.move(angle,p);
+		arm.move(angles,p);
 		System.out.println(p);
 	}
 }
