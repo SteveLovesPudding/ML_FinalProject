@@ -53,8 +53,8 @@ public class Arm {
 
 			// System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
 			// + Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
-			System.out.println("ARM END " + end[0] + " " + end[1] + " "
-					+ end[2]);
+			//System.out.println("ARM END " + end[0] + " " + end[1] + " "
+			//		+ end[2]);
 
 			// check each arm to make sure none intersect
 			for (int j = 1; j < i; j++) {
@@ -103,25 +103,25 @@ public class Arm {
 		double xangle = angles[0], yangle = angles[1], zangle = angles[2];
 
 		double newX, newY, newZ;
-		System.out.println(x + " " + y + " " + z);
+		//System.out.println(x + " " + y + " " + z);
 		// rotation along x
 		newY = y*Math.cos(xangle) - z*Math.sin(xangle);
 		newZ = y*Math.sin(xangle) + z*Math.cos(xangle);
 		y = newY;
 		z = newZ;
-		System.out.println(x + " " + y + " " + z);
+		//System.out.println(x + " " + y + " " + z);
 		// rotation along y
 		newZ = z*Math.cos(yangle) - x*Math.sin(yangle); 
 		newX = z*Math.sin(yangle) + x*Math.cos(yangle); 
 		z = newZ;
 		x = newX; 
-		System.out.println(x + " " + y + " " + z);
+		//System.out.println(x + " " + y + " " + z);
 		// rotation along z
 		newX = x*Math.cos(zangle) - y*Math.sin(zangle);
 		newY = x*Math.sin(zangle) + y*Math.cos(zangle);
 		x = newX;
 		y = newY; 
-		System.out.println(x + " " + y + " " + z);
+		//System.out.println(x + " " + y + " " + z);
 
 		return new double[] { x, y, z };
 
