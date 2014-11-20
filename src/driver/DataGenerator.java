@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import robotArm.Arm;
+import robotArm.JointDirection;
 import robotArm.Position;
 
 public class DataGenerator {
@@ -14,24 +15,28 @@ public class DataGenerator {
 	private static String fileName = "data_oneArm_100.txt";
 	public static void main(String[] args) throws IOException {
 		double[] armLengths = {1.0};
-		double[][] randomConfiguration;
-		int numDataCreated = 0;
+		double[] randomConfigurations;
+		JointDirection[] joints = new JointDirection[numJoints];
+		for (int i=0; i < numJoints; i++) {
+			joints[i] = JointDirection.Y;
+		}
 		
+		int numDataCreated = 0;
 	    BufferedWriter writer = null; // for data writing purposes
 	    File dataFile = new File(fileName);
 	    String out = "";
 	    
-	    Arm arm = new Arm(armLengths);
+	    Arm arm = new Arm(armLengths, joints);
 		while (numDataCreated < numDataPoints) {
 			
 			Position p = new Position();
 			//System.out.println(""+jointConfigurations[0][0] +" "+ jointConfigurations[0][1] +" "+ jointConfigurations[0][2]);
-			randomConfiguration = createRandomConfiguration();
+			randomConfigurations = createRandomConfiguration();
 			if (arm.move(createRandomConfiguration(),p)) {
 				// if the arm moved successfully, # separates each joint (ex. q1x,q1y,q1z # q2x,q2y,q2z #...)
 				for (int joint = 0; joint < numJoints; joint++) {
 					// write out for each joint
-					out += randomConfiguration[joint][0] +","+randomConfiguration[joint][1] +","+randomConfiguration[joint][2]+"   #   ";  
+					out += randomConfigurations[joint] +"   #   ";  
 				}  
 				out += "\n";
 				out += p.toString() +"\n"; // end-effector x,y,z
@@ -48,10 +53,10 @@ public class DataGenerator {
         }
 		System.out.println("DATA WRITTEN TO " +fileName+"  :)");
 	}
-	private static double[][] createRandomConfiguration() {
-		double[][] jointConfigurations = new double[numJoints][numDataPoints];
+	private static double[] createRandomConfiguration() {
+		double[] jointConfigurations = new double[numJoints];
 		for(int i=0; i<numJoints; i++) {  // populate random joint Configurations
-			jointConfigurations[i] =  new double[]{Math.random()*2*Math.PI, Math.random()*2*Math.PI, Math.random()*2*Math.PI};
+			jointConfigurations[i] =  Math.random()*2*Math.PI;
 		}
 		return jointConfigurations;
 	}
