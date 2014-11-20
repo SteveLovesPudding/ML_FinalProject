@@ -36,7 +36,7 @@ public class DataGenerator {
 				// if the arm moved successfully, # separates each joint (ex. q1x,q1y,q1z # q2x,q2y,q2z #...)
 				for (int joint = 0; joint < numJoints; joint++) {
 					// write out for each joint
-					out += randomConfigurations[joint] +"   #   ";  
+					out += randomConfigurations[joint] + ", ";  
 				}  
 				out += "\n";
 				out += p.toString() +"\n"; // end-effector x,y,z

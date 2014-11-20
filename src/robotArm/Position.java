@@ -16,7 +16,7 @@ public class Position {
 	}
 
 	public String toString() {
-		return "" + coordinates[0] + "," + coordinates[1] + ","
+		return "" + coordinates[0] + "  " + coordinates[1] + "  "
 				+ coordinates[2] + "";
 	}
 }
