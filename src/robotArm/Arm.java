@@ -25,7 +25,8 @@ public class Arm {
 		double xend = 0, yend = 0, zend = 0;
 		Map<Integer, double[][]> armEnds = new HashMap<Integer, double[][]>();
 		// check that enough dimensions are sent
-		double x = 1, y = 1, z = 1;
+		//default orientation
+		double x = 1, y = 0, z = 0;
 		for (int i = 0; i < armLengths.length; i++) {
 
 			// {start x, start y, start z, end x, end y, end z}
@@ -34,10 +35,9 @@ public class Arm {
 			begin[1] = yend;
 			begin[2] = zend;
 
-			int adjust = 3 * i;
 			double[] vector = findOrientation(new double[] { x, y, z },
 					angles[i]);
-			vector = convertToUnitVector(new double[] { x, y, z });
+			vector = convertToUnitVector(vector);
 			x = vector[0];
 			y = vector[1];
 			z = vector[2];
@@ -51,9 +51,10 @@ public class Arm {
 
 			armEnds.put(i, new double[][] { begin, end });
 
-			System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
-					+ Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
-			System.out.println(end[0] + " " + end[1] + " " + end[2]);
+			// System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
+			// + Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
+			System.out.println("ARM END " + end[0] + " " + end[1] + " "
+					+ end[2]);
 
 			// check each arm to make sure none intersect
 			for (int j = 1; j < i; j++) {
@@ -80,8 +81,13 @@ public class Arm {
 		double vectorLength = Math.sqrt(Math.pow(vector[0], 2)
 				+ Math.pow(vector[1], 2) + Math.pow(vector[2], 2));
 
-		return new double[] { vector[0] / vectorLength,
-				vector[1] / vectorLength, vector[2] / vectorLength };
+		if (vectorLength == 0) {
+			return new double[] { 0, 0, 0 };
+		} else {
+			return new double[] { vector[0] / vectorLength,
+					vector[1] / vectorLength, vector[2] / vectorLength };
+
+		}
 	}
 
 	/**
@@ -96,14 +102,26 @@ public class Arm {
 		double x = original[0], y = original[1], z = original[2];
 		double xangle = angles[0], yangle = angles[1], zangle = angles[2];
 
-		y *= Math.cos(xangle);
-		z *= Math.sin(xangle);
+		double newX, newY, newZ;
+		System.out.println(x + " " + y + " " + z);
+		// rotation along x
+		newY = y*Math.cos(xangle) - z*Math.sin(xangle);
+		newZ = y*Math.sin(xangle) + z*Math.cos(xangle);
+		y = newY;
+		z = newZ;
+		System.out.println(x + " " + y + " " + z);
 		// rotation along y
-		x *= Math.cos(yangle);
-		z *= Math.sin(yangle);
+		newZ = z*Math.cos(yangle) - x*Math.sin(yangle); 
+		newX = z*Math.sin(yangle) + x*Math.cos(yangle); 
+		z = newZ;
+		x = newX; 
+		System.out.println(x + " " + y + " " + z);
 		// rotation along z
-		y *= Math.sin(zangle);
-		x *= Math.cos(zangle);
+		newX = x*Math.cos(zangle) - y*Math.sin(zangle);
+		newY = x*Math.sin(zangle) + y*Math.cos(zangle);
+		x = newX;
+		y = newY; 
+		System.out.println(x + " " + y + " " + z);
 
 		return new double[] { x, y, z };
 
