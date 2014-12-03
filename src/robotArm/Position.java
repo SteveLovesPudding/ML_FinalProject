@@ -7,6 +7,18 @@ public class Position {
 	 */
 	double[] coordinates = new double[3];
 
+	public Position(double[] coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	public Position(double x, double y, double z) {
+		this.coordinates = new double[] { x, y, z };
+	}
+
+	public Position() {
+
+	}
+
 	public double[] getCoordinates() {
 		return this.coordinates;
 	}
