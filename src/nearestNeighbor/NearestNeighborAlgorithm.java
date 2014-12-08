@@ -90,13 +90,9 @@ public class NearestNeighborAlgorithm {
 
 			closestPoint = this.getClosestPoint(desiredPosition,
 					convertToArray(calculatedConfigurations));
-			System.out.println(closestPoint);
+
 			nearestNeighbors = getNearestNeighbors(closestPoint,
 					numNearestNeighbors);
-			for (Node n: nearestNeighbors) {
-				System.out.println(n);
-			}
-			System.out.println();
 
 			// Solve for Xw = Q
 			xArray = new double[numNearestNeighbors][4];

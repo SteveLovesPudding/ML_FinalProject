@@ -13,35 +13,36 @@ import robotArm.Position;
  */
 public class DataCollection {
 	private static int numNeighbors = 5;
+	private static int numJoints = 4;
 	public static void main(String[] args) {
-		NearestNeighborAlgorithm nn = new NearestNeighborAlgorithm("test_twoArm_5000_YZ");
-		double[] joints = {1,1};
-		JointDirection[] dir = {JointDirection.Y, JointDirection.Z};
+		NearestNeighborAlgorithm nn = new NearestNeighborAlgorithm("test_fourArm_10000_YZYZ");
+		double[] joints = {1,1,1,1};
+		JointDirection[] dir = {JointDirection.Y, JointDirection.Z,JointDirection.Y, JointDirection.Z};
 		Arm groundTruthArm = new Arm(joints, dir);
 		Arm computingArm = new Arm(joints, dir);
 		
 		//ground truth computations
 		Position groundTruthEndEffectorPosition = new Position();
-		double[] groundTruthConfigs = createRandomConfiguration(2);
-		//double[] groundTruthConfigs = new double[]{4.3517,5.2204};
+		double[] groundTruthConfigs = createRandomConfiguration(numJoints);
 		groundTruthArm.move(groundTruthConfigs, groundTruthEndEffectorPosition);
+		
 		//computed inverse kinematics
 		double[] computedConfigs = nn.getConfiguration(groundTruthEndEffectorPosition, numNeighbors);
 		Position computedEndEffectorPosition = new Position();
 		computingArm.move(computedConfigs, computedEndEffectorPosition);
 		
-		System.out.println("GROUND TRUTH DATA");
-		for (Double d: groundTruthConfigs) {
-			System.out.println(d);
-		}
-		System.out.println(groundTruthEndEffectorPosition);
-		
-		System.out.println("\nCOMPUTED TRUTH DATA");
-		for (Double d: computedConfigs) {
-			System.out.println(d);
-		}
-		System.out.println(computedEndEffectorPosition);
+		double[] gtCoords = groundTruthEndEffectorPosition.getCoordinates();
+		double[] cpCoords = computedEndEffectorPosition.getCoordinates();
+		double xDiff = Math.abs(gtCoords[0] - cpCoords[0]);
+		double yDiff = Math.abs(gtCoords[1] - cpCoords[1]);
+		double zDiff = Math.abs(gtCoords[2] - cpCoords[2]);
+		System.out.print(xDiff + "  ");
+		System.out.print(yDiff + "  ");
+		System.out.println(zDiff);
+		double percentError = (Math.abs((xDiff/gtCoords[0])*100) + Math.abs((yDiff/gtCoords[1])*100) + Math.abs((zDiff/gtCoords[2])*100))/3; 
+		System.out.println(percentError+" %");
 	}
+	
 	/**
 	 * 
 	 * @return double array of random configurations.
