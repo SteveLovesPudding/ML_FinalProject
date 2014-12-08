@@ -19,24 +19,29 @@ public class Node {
 	public Position getEndEffectorPosition() {
 		return this.endEffector;
 	}
-	
-	public double[] getEndEffectorArray(){
+
+	public double[] getEndEffectorArray() {
 		return this.endEffector.getCoordinates();
 	}
-	public int getNumJoints(){
+
+	public int getNumJoints() {
 		return configurations.length;
 	}
+
 	public double getConfig(int index) {
 		return this.configurations[index];
 	}
+
 	public String toString() {
 		String val = "config=[";
-		for (Double d: this.configurations) {
+		for (Double d : this.configurations) {
 			val += d + ",";
 		}
 		val += "] ";
 		val += "endPos=[";
-		val += this.endEffector.getCoordinates()[0] +","+ this.endEffector.getCoordinates()[1]+","+this.endEffector.getCoordinates()[2] ;
+		val += this.endEffector.getCoordinates()[0] + ","
+				+ this.endEffector.getCoordinates()[1] + ","
+				+ this.endEffector.getCoordinates()[2];
 		val += "]";
 		return val;
 	}

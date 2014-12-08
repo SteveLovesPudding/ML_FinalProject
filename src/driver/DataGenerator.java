@@ -10,18 +10,21 @@ import robotArm.JointDirection;
 import robotArm.Position;
 
 public class DataGenerator {
-	private static int numDataPoints = 1000;
-	private static int numJoints = 2;
-	private static String fileName = "data_twoArm_1000.txt";
+	private static int numDataPoints = 2000;
+	private static int numJoints = 5;
+	private static String fileName = "data_fiveArm_2000.txt";
 	public static void main(String[] args) throws IOException {
-		double[] armLengths = {3.0,1.0};
+		double[] armLengths = {4.0, 3.0, 2.0, 1.0, 0.5};
 		double[] randomConfigurations;
 		JointDirection[] joints = new JointDirection[numJoints];
 		/*for (int i=0; i < numJoints; i++) {
 			joints[i] = JointDirection.Y;
 		}*/
-		joints[0] = JointDirection.Y; 
-		joints[1] = JointDirection.Z;
+		joints[0] = JointDirection.Z; 
+		joints[1] = JointDirection.Y;
+		joints[2] = JointDirection.Z;
+		joints[3] = JointDirection.Z;
+		joints[4] = JointDirection.Y; 
 		
 		int numDataCreated = 0;
 	    BufferedWriter writer = null; // for data writing purposes

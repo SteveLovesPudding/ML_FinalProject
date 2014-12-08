@@ -3,7 +3,7 @@
 
 
 
-fid1 = fopen('./data_twoArm_1000_positions.txt','rt');
+fid1 = fopen('./data_fiveArm_2000_positions.txt','rt');
 
 D1 = textscan(fid1, '%f %f %f', 'CollectOutput', true);
 

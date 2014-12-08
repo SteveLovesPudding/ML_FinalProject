@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 public class temp {
-	private static String filename = "data_twoArm_1000_positions.txt";
+	private static String filename = "data_fiveArm_2000_positions.txt";
 	public static void main(String[] args) throws IOException {
 		// helper driver to just pick out position values from the data file.
-		BufferedReader data = new BufferedReader(new FileReader("data_twoArm_1000.txt"));
+		BufferedReader data = new BufferedReader(new FileReader("data_fiveArm_2000.txt"));
 		String out = "";
 		String line = data.readLine();
 		while (line != null) {

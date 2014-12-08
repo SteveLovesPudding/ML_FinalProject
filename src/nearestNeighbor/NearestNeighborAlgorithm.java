@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import kdTree.KdTree;
@@ -18,11 +19,12 @@ import Jama.Matrix;
 
 public class NearestNeighborAlgorithm {
 
-	private KdTree tree;
+	private KdTree<Point> tree;
 	private List<Point> nodesForTree;
+	//Dimension of configuration
 	private int dimension;
 	private Map<Point, Node> mapping;
-	
+
 	public NearestNeighborAlgorithm(String dataFile, int dimension) {
 		nodesForTree = new ArrayList<Point>();
 		mapping = new HashMap<Point, Node>();
@@ -33,9 +35,7 @@ public class NearestNeighborAlgorithm {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
+
 	public double[] getConfiguration(Position desiredPosition) {
 		double[] dpArray = desiredPosition.getCoordinates();
 		Matrix desiredPositionVector = new Matrix(new double[][] { {
@@ -52,34 +52,35 @@ public class NearestNeighborAlgorithm {
 		double[][] xArray;
 		double[][] qArray;
 		// Greedy calculation for each joint
-		for (int i = 1; i < numJoints; i++) {
+		for (int i = 0; i < numJoints; i++) {
 			closestPoint = this.getClosestPoint(desiredPosition,
 					convertToArray(calculatedConfigurations));
+			System.out.println(closestPoint);
 			nearestNeighbors = getNearestNeighbors(closestPoint,
 					numNearestNeighbors);
-
+			for(Node neighbor:nearestNeighbors) System.out.print(neighbor + " ");
+			System.out.println(); 
 			// Solve for Xw = Q
 			xArray = new double[numNearestNeighbors][4];
 			qArray = new double[numNearestNeighbors][1];
-
 			for (int j = 0; j < numNearestNeighbors; j++) {
-				qArray[0][j] = nearestNeighbors[j].getConfigurations()[j];
-				for (int k = 0; k < 4; k++) {
+				qArray[j][0] = nearestNeighbors[j].getConfigurations()[i];
+				for (int k = 0; k < 3; k++) {
 					xArray[j][k] = nearestNeighbors[j].getEndEffectorArray()[k];
 				}
+				xArray[j][3] = 1; 
 			}
 
 			Matrix x = new Matrix(xArray), q = new Matrix(qArray);
 			Matrix w = x.solve(q);
 			Matrix derivedConfiguration = desiredPositionVector.times(w);
-
 			calculatedConfigurations.add(derivedConfiguration.get(0, 0));
 
 		}
-		
+		System.out.println(calculatedConfigurations);
 		return convertToArray(calculatedConfigurations);
 	}
-	
+
 	public KdTree getTree() {
 		return this.tree;
 	}
@@ -96,8 +97,31 @@ public class NearestNeighborAlgorithm {
 	private Node getClosestPoint(Position desiredPosition,
 			double[] configurations) {
 
-		// TODO add equation to take into account configurations
-		return null;
+		double minValue = Double.MAX_VALUE;
+		double[] target = desiredPosition.getCoordinates();
+		Node closestNeighbor = null;
+
+		for (Node node : mapping.values()) {
+
+			double[] configs = node.getConfigurations(), endEffector = node
+					.getEndEffectorArray();
+
+			double sum = 0;
+			// euclidean distance
+			for (int i = 0; i < 3; i++) {
+				sum += Math.pow(target[i] - endEffector[i], 2);
+			}
+			// factors in known configuration
+			for (int i = 0; i < configurations.length; i++) {
+				sum += Math.pow(configurations[i] - configs[i], 2);
+			}
+
+			if (sum < minValue) {
+				minValue = sum;
+				closestNeighbor = node;
+			}
+		}
+		return closestNeighbor;
 	}
 
 	/**
@@ -110,15 +134,16 @@ public class NearestNeighborAlgorithm {
 	 * @return an array of nearest neighbors
 	 */
 	public Node[] getNearestNeighbors(Node node, int numNeighbors) {
-		Collection<Point> positions = tree.nearestNeighbourSearch(numNeighbors, new Point(node.getConfigurations()) );
+		Collection<Point> positions = tree.nearestNeighbourSearch(numNeighbors,
+				new Point(node.getConfigurations()));
 		Node[] neighbors = new Node[positions.size()];
 		int index = 0;
-		for (Point p: positions) {
-			//System.out.println(p);
+		for (Point p : positions) {
+			// System.out.println(p);
 			neighbors[index] = mapping.get(p);
 			index++;
 		}
-		
+
 		return neighbors;
 	}
 
@@ -131,7 +156,7 @@ public class NearestNeighborAlgorithm {
 
 		return array;
 	}
-	
+
 	private void buildTree(String dataFile) throws IOException {
 		BufferedReader data = null;
 		try {
@@ -139,25 +164,26 @@ public class NearestNeighborAlgorithm {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		String line = data.readLine(); // first line is the configs, the following line is the position 
+		String line = data.readLine(); // first line is the configs, the
+										// following line is the position
 		while (line != null) {
-	        StringTokenizer st = new StringTokenizer(line);
-	        double[] configs = new double[st.countTokens()];
-	        int index = 0;
-	        while (st.hasMoreTokens()) {
-	        	configs[index] = Double.parseDouble(st.nextToken());
-	        	index++;
-	        }
-	        line = data.readLine();
-	        //System.out.println(line);
-	        st = new StringTokenizer(line);
-	        Point p = new Point(configs);
-	        Node n = new Node(configs, new Position(Double.parseDouble(st.nextToken()),
-	        										Double.parseDouble(st.nextToken()),
-	        										Double.parseDouble(st.nextToken()) ) );   
-	        mapping.put(p, n);
-	        nodesForTree.add(p);
-	        line = data.readLine();
+			StringTokenizer st = new StringTokenizer(line);
+			double[] configs = new double[st.countTokens()];
+			int index = 0;
+			while (st.hasMoreTokens()) {
+				configs[index] = Double.parseDouble(st.nextToken());
+				index++;
+			}
+			line = data.readLine();
+			// System.out.println(line);
+			st = new StringTokenizer(line);
+			Point p = new Point(configs);
+			Node n = new Node(configs, new Position(Double.parseDouble(st
+					.nextToken()), Double.parseDouble(st.nextToken()),
+					Double.parseDouble(st.nextToken())));
+			mapping.put(p, n);
+			nodesForTree.add(p);
+			line = data.readLine();
 		}
 		tree = new KdTree(nodesForTree, dimension);
 	}
