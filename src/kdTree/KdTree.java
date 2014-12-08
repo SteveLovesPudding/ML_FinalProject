@@ -1,4 +1,5 @@
 package kdTree;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,58 +18,17 @@ import java.util.TreeSet;
  * 
  * http://en.wikipedia.org/wiki/K-d_tree
  * 
- * @author Justin Wetherell <phishman3579@gmail.com>
+ * @author Justin Wetherell <phishman3579@gmail.com> adapted by Steven Lin
+ *         slin45 and Tae Soo Kim tkim60 for the use of Machine Learning project
  */
 public class KdTree<T extends KdTree.XYZPoint> {
 
-	private int k = 5;
+	/**
+	 * Dimensionality of tree.
+	 */
+	private int k = 3;
 	private KdNode root = null;
 	private static Comparator<Point>[] COMPARATORS;
-	
-//
-//	private static final Comparator<XYZPoint> X_COMPARATOR = new Comparator<XYZPoint>() {
-//		/**
-//		 * {@inheritDoc}
-//		 */
-//		@Override
-//		public int compare(XYZPoint o1, XYZPoint o2) {;
-//			if (o1.x < o2.x)
-//				return -1;
-//			if (o1.x > o2.x)
-//				return 1;
-//			return 0;
-//		}
-//	};
-//
-//	private static final Comparator<XYZPoint> Y_COMPARATOR = new Comparator<XYZPoint>() {
-//
-//		/**
-//		 * {@inheritDoc}
-//		 */
-//		@Override
-//		public int compare(XYZPoint o1, XYZPoint o2) {
-//			if (o1.y < o2.y)
-//				return -1;
-//			if (o1.y > o2.y)
-//				return 1;
-//			return 0;
-//		}
-//	};
-//
-//	private static final Comparator<XYZPoint> Z_COMPARATOR = new Comparator<XYZPoint>() {
-//
-//		/**
-//		 * {@inheritDoc}
-//		 */
-//		@Override
-//		public int compare(XYZPoint o1, XYZPoint o2) {
-//			if (o1.z < o2.z)
-//				return -1;
-//			if (o1.z > o2.z)
-//				return 1;
-//			return 0;
-//		}
-//	};
 
 	protected static final int X_AXIS = 0;
 	protected static final int Y_AXIS = 1;
@@ -81,35 +41,20 @@ public class KdTree<T extends KdTree.XYZPoint> {
 	}
 
 	/**
-	 * Constructor for creating a more balanced tree. It uses the
-	 * "median of points" algorithm.
+	 * Constructor.
 	 * 
 	 * @param list
-	 *            of XYZPoints.
+	 *            List of points in the tree.
+	 * @param dimensions
+	 *            Dimension in a kd tree.
 	 */
-//	public KdTree(List<XYZPoint> list) {
-//		COMPARATORS = new Comparator[k];
-//		for (int i = 0; i < k; i++) {
-//			COMPARATORS[i] = new Comparator<XYZPoint>() {
-//				@Override
-//				public int compare(XYZPoint o1, XYZPoint o2) {;
-//					if (o1.x < o2.x)
-//						return -1;
-//					if (o1.x > o2.x)
-//						return 1;
-//					return 0;
-//				}
-//			};
-//		}
-//		root = createNode(list, k, 0);
-//	}
-	
+	@SuppressWarnings("unchecked")
 	public KdTree(List<Point> list, int dimensions) {
+
 		this.k = dimensions;
-		System.out.println(this.k);
-		COMPARATORS = new Comparator[k];
+		COMPARATORS = new NNComparator[k];
 		for (int i = 0; i < k; i++) {
-			COMPARATORS[i] = new MyComparator<Point>(i) ;
+			COMPARATORS[i] = new NNComparator<Point>(i);
 		}
 		root = createNode(list, k, 0);
 	}
@@ -129,22 +74,8 @@ public class KdTree<T extends KdTree.XYZPoint> {
 		if (list == null || list.size() == 0)
 			return null;
 		int axis = depth % k;
-		
-//		System.out.println(axis);
-//		for(Point p: list) {
-//			System.out.println(p);
-//		}
-		//if (axis == X_AXIS)
 		Collections.sort(list, COMPARATORS[axis]);
-		//Collections.sort(list, new MyComparator(0));
-		//Collections.sort(list, X_COMPARATOR);
-	//	else if (axis == Y_AXIS)
-	//		Collections.sort(list, Y_COMPARATOR);
-	//	else
-	//		Collections.sort(list, Z_COMPARATOR);
-//		for(Point p: list) {
-//			System.out.println(p);
-//		}
+
 		KdNode node = null;
 		if (list.size() > 0) {
 			int medianIndex = list.size() / 2;
@@ -163,19 +94,14 @@ public class KdTree<T extends KdTree.XYZPoint> {
 				}
 			}
 			if ((medianIndex - 1) >= 0) {
-				// Cannot assume points before the median are less since they
-				// could be equal
-				// List<XYZPoint> less = list.subList(0, mediaIndex);
+
 				if (less.size() > 0) {
 					node.lesser = createNode(less, k, depth + 1);
 					node.lesser.parent = node;
 				}
 			}
 			if ((medianIndex + 1) <= (list.size() - 1)) {
-				// Cannot assume points after the median are less since they
-				// could be equal
-				// List<XYZPoint> more = list.subList(mediaIndex + 1,
-				// list.size());
+
 				if (more.size() > 0) {
 					node.greater = createNode(more, k, depth + 1);
 					node.greater.parent = node;
@@ -537,11 +463,11 @@ public class KdTree<T extends KdTree.XYZPoint> {
 			int axis = depth % k;
 
 			return COMPARATORS[axis].compare(o1, o2);
-			/*if (axis == X_AXIS)
-				return X_COMPARATOR.compare(o1, o2);
-			if (axis == Y_AXIS)
-				return Y_COMPARATOR.compare(o1, o2);
-			return Z_COMPARATOR.compare(o1, o2);*/
+			/*
+			 * if (axis == X_AXIS) return X_COMPARATOR.compare(o1, o2); if (axis
+			 * == Y_AXIS) return Y_COMPARATOR.compare(o1, o2); return
+			 * Z_COMPARATOR.compare(o1, o2);
+			 */
 		}
 
 		/**
@@ -598,8 +524,9 @@ public class KdTree<T extends KdTree.XYZPoint> {
 			this.y = y;
 			this.z = z;
 		}
+
 		public XYZPoint() {
-			
+
 		}
 
 		/**
@@ -646,15 +573,13 @@ public class KdTree<T extends KdTree.XYZPoint> {
 		 */
 		@Override
 		public int compareTo(XYZPoint o) {
-			/*int xComp = X_COMPARATOR.compare(this, o);
-			if (xComp != 0)
-				return xComp;
-			int yComp = Y_COMPARATOR.compare(this, o);
-			if (yComp != 0)
-				return yComp;
-			int zComp = Z_COMPARATOR.compare(this, o);
-			return zComp;*/
-			int comp = COMPARATORS[0].compare((Point) this,(Point) o);
+			/*
+			 * int xComp = X_COMPARATOR.compare(this, o); if (xComp != 0) return
+			 * xComp; int yComp = Y_COMPARATOR.compare(this, o); if (yComp != 0)
+			 * return yComp; int zComp = Z_COMPARATOR.compare(this, o); return
+			 * zComp;
+			 */
+			int comp = COMPARATORS[0].compare((Point) this, (Point) o);
 			for (int i = 0; i < COMPARATORS.length; i++) {
 				if (comp != 0) {
 					return comp;
@@ -695,12 +620,12 @@ public class KdTree<T extends KdTree.XYZPoint> {
 				if (node.parent.greater != null
 						&& node.id.equals(node.parent.greater.id))
 					side = "right";
-				builder.append(prefix + (isTail ? "戌式式 " : "戍式式 ") + "[" + side
-						+ "] " + "depth=" + node.depth + " id=" + node.id
-						+ "\n");
+				builder.append(prefix + (isTail ? "戌式式 " : "戍式式 ") + "["
+						+ side + "] " + "depth=" + node.depth + " id="
+						+ node.id + "\n");
 			} else {
-				builder.append(prefix + (isTail ? "戌式式 " : "戍式式 ") + "depth="
-						+ node.depth + " id=" + node.id + "\n");
+				builder.append(prefix + (isTail ? "戌式式 " : "戍式式 ")
+						+ "depth=" + node.depth + " id=" + node.id + "\n");
 			}
 			List<KdNode> children = null;
 			if (node.lesser != null || node.greater != null) {
