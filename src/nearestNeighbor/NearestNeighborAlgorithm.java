@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import kdTree.KdTree;
@@ -17,18 +16,51 @@ import kdTree.Point;
 import robotArm.Position;
 import Jama.Matrix;
 
+/**
+ * 
+ * @author Steven Lin slin45 and Tae Koo Kim tkim60 with code from Comparator
+ *         class, courtesy Justin Wetherell <phishman3579@gmail.com>
+ *         http://en.wikipedia.org/wiki/K-d_tree
+ */
 public class NearestNeighborAlgorithm {
 
+	/**
+	 * Kd tree that provides efficient nearest neighbor search.
+	 */
 	private KdTree<Point> tree;
+
+	/**
+	 * List of points that hold a node that belongs to the tree.
+	 */
 	private List<Point> nodesForTree;
-	//Dimension of configuration
+
+	/**
+	 * Number of joints which corresponds to the kd tree.
+	 */
 	private int dimension;
+
+	/**
+	 * Maps a point to a node
+	 */
 	private Map<Point, Node> mapping;
 
-	public NearestNeighborAlgorithm(String dataFile, int dimension) {
+	private int numNearestNeighbors;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param dataFile
+	 *            Datafile that contains the generated examples.
+	 * @param dimension
+	 *            Number of joints which corresponds k-d tree.
+	 */
+	public NearestNeighborAlgorithm(String dataFile, int dimension,
+			int numNearestNeighbors) {
+
 		nodesForTree = new ArrayList<Point>();
 		mapping = new HashMap<Point, Node>();
 		this.dimension = dimension;
+		this.numNearestNeighbors = numNearestNeighbors;
 		try {
 			buildTree(dataFile);
 		} catch (IOException e) {
@@ -36,30 +68,36 @@ public class NearestNeighborAlgorithm {
 		}
 	}
 
+	/**
+	 * Implementation based on the literature from :
+	 * http://link.springer.com/chapter/10.1007%2F978-3-642-01213-6_2#page-1
+	 * 
+	 * @param desiredPosition
+	 *            Position for which the inverse kinematics is found.
+	 * @return Configuration set to achieved desired position.
+	 */
 	public double[] getConfiguration(Position desiredPosition) {
+
+		// Creates vector of desired position for use of JAMA matrix package
 		double[] dpArray = desiredPosition.getCoordinates();
 		Matrix desiredPositionVector = new Matrix(new double[][] { {
 				dpArray[0], dpArray[1], dpArray[2], 1 } });
-		int numNearestNeighbors = 5;
-		desiredPositionVector.print(1, 1);
+
 		Node closestPoint;
 		Node[] nearestNeighbors;
-		int numJoints = getNearestNeighbors(
-				this.getClosestPoint(desiredPosition, new double[] {}),
-				numNearestNeighbors)[0].getNumJoints();
 		List<Double> calculatedConfigurations = new ArrayList<Double>();
 
+		// Models Physical space x * linear weights w = configuration space q
 		double[][] xArray;
 		double[][] qArray;
 		// Greedy calculation for each joint
-		for (int i = 0; i < numJoints; i++) {
+		for (int i = 0; i < dimension; i++) {
+
 			closestPoint = this.getClosestPoint(desiredPosition,
 					convertToArray(calculatedConfigurations));
-			System.out.println(closestPoint);
 			nearestNeighbors = getNearestNeighbors(closestPoint,
 					numNearestNeighbors);
-			for(Node neighbor:nearestNeighbors) System.out.print(neighbor + " ");
-			System.out.println(); 
+
 			// Solve for Xw = Q
 			xArray = new double[numNearestNeighbors][4];
 			qArray = new double[numNearestNeighbors][1];
@@ -68,20 +106,27 @@ public class NearestNeighborAlgorithm {
 				for (int k = 0; k < 3; k++) {
 					xArray[j][k] = nearestNeighbors[j].getEndEffectorArray()[k];
 				}
-				xArray[j][3] = 1; 
+				xArray[j][3] = 1;
 			}
 
 			Matrix x = new Matrix(xArray), q = new Matrix(qArray);
 			Matrix w = x.solve(q);
 			Matrix derivedConfiguration = desiredPositionVector.times(w);
+
+			// Add configuration for one joint, need to re-evaluate for nearest
+			// neighbor
 			calculatedConfigurations.add(derivedConfiguration.get(0, 0));
 
 		}
-		System.out.println(calculatedConfigurations);
+
 		return convertToArray(calculatedConfigurations);
 	}
 
-	public KdTree getTree() {
+	/**
+	 * 
+	 * @return Tree used by nearest neighbor algorithm.
+	 */
+	public KdTree<Point> getTree() {
 		return this.tree;
 	}
 
@@ -139,7 +184,6 @@ public class NearestNeighborAlgorithm {
 		Node[] neighbors = new Node[positions.size()];
 		int index = 0;
 		for (Point p : positions) {
-			// System.out.println(p);
 			neighbors[index] = mapping.get(p);
 			index++;
 		}
@@ -147,6 +191,12 @@ public class NearestNeighborAlgorithm {
 		return neighbors;
 	}
 
+	/**
+	 * 
+	 * @param list
+	 *            Converts list to array.
+	 * @return List in double array format.
+	 */
 	private double[] convertToArray(List<Double> list) {
 
 		double[] array = new double[list.size()];
@@ -157,7 +207,21 @@ public class NearestNeighborAlgorithm {
 		return array;
 	}
 
+	/**
+	 * Creates tree based on generated datafile.
+	 * 
+	 * courtesy Justin Wetherell <phishman3579@gmail.com>
+	 * http://en.wikipedia.org/wiki/K-d_tree utilized in Mr. Wetherell's
+	 * implementation of Kd tree to construct a kd tree.
+	 * 
+	 * @param dataFile
+	 *            Generated data file.
+	 * 
+	 * @throws IOException
+	 *             When data file can't be found
+	 */
 	private void buildTree(String dataFile) throws IOException {
+
 		BufferedReader data = null;
 		try {
 			data = new BufferedReader(new FileReader(dataFile));
@@ -175,7 +239,7 @@ public class NearestNeighborAlgorithm {
 				index++;
 			}
 			line = data.readLine();
-			// System.out.println(line);
+
 			st = new StringTokenizer(line);
 			Point p = new Point(configs);
 			Node n = new Node(configs, new Position(Double.parseDouble(st
@@ -185,6 +249,6 @@ public class NearestNeighborAlgorithm {
 			nodesForTree.add(p);
 			line = data.readLine();
 		}
-		tree = new KdTree(nodesForTree, dimension);
+		tree = new KdTree<Point>(nodesForTree, dimension);
 	}
 }
