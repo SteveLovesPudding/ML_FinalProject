@@ -10,11 +10,11 @@ import robotArm.JointDirection;
 import robotArm.Position;
 
 public class DataGenerator {
-	private static int numDataPoints = 1500;
+	private static int numDataPoints = 1000;
 	private static int numJoints = 2;
-	private static String fileName = "data_twoArm_1500.txt";
+	private static String fileName = "data_twoArm_1000.txt";
 	public static void main(String[] args) throws IOException {
-		double[] armLengths = {1.0,0.5};
+		double[] armLengths = {2.0,1.0};
 		double[] randomConfigurations;
 		JointDirection[] joints = new JointDirection[numJoints];
 		/*for (int i=0; i < numJoints; i++) {
@@ -38,7 +38,7 @@ public class DataGenerator {
 				// if the arm moved successfully, # separates each joint (ex. q1x,q1y,q1z # q2x,q2y,q2z #...)
 				for (int joint = 0; joint < numJoints; joint++) {
 					// write out for each joint
-					out += randomConfigurations[joint] + ", ";  
+					out += randomConfigurations[joint] + " ";  
 				}  
 				out += "\n";
 				out += p.toString() +"\n"; // end-effector x,y,z
