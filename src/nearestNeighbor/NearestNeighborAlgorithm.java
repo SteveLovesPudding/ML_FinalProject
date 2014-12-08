@@ -44,23 +44,16 @@ public class NearestNeighborAlgorithm {
 	 */
 	private Map<Point, Node> mapping;
 
-	private int numNearestNeighbors;
-
 	/**
 	 * Constructor.
 	 * 
 	 * @param dataFile
 	 *            Datafile that contains the generated examples.
-	 * @param dimension
-	 *            Number of joints which corresponds k-d tree.
 	 */
-	public NearestNeighborAlgorithm(String dataFile, int dimension,
-			int numNearestNeighbors) {
+	public NearestNeighborAlgorithm(String dataFile) {
 
 		nodesForTree = new ArrayList<Point>();
 		mapping = new HashMap<Point, Node>();
-		this.dimension = dimension;
-		this.numNearestNeighbors = numNearestNeighbors;
 		try {
 			buildTree(dataFile);
 		} catch (IOException e) {
@@ -75,8 +68,10 @@ public class NearestNeighborAlgorithm {
 	 * @param desiredPosition
 	 *            Position for which the inverse kinematics is found.
 	 * @return Configuration set to achieved desired position.
+	 * @param numNearestNeighbors
+	 *            number of nearest neighbors to use for this algorithm
 	 */
-	public double[] getConfiguration(Position desiredPosition) {
+	public double[] getConfiguration(Position desiredPosition, int numNearestNeighbors) {
 
 		// Creates vector of desired position for use of JAMA matrix package
 		double[] dpArray = desiredPosition.getCoordinates();
@@ -228,6 +223,8 @@ public class NearestNeighborAlgorithm {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		dimension = Integer.parseInt(data.readLine());
+
 		String line = data.readLine(); // first line is the configs, the
 										// following line is the position
 		while (line != null) {
