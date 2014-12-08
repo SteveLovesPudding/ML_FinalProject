@@ -24,8 +24,8 @@ public class NearestNeighborAlgorithm {
 	private Map<Point, Node> mapping;
 	
 	public NearestNeighborAlgorithm(String dataFile, int dimension) {
-		nodesForTree = new ArrayList<>();
-		mapping = new HashMap<>();
+		nodesForTree = new ArrayList<Point>();
+		mapping = new HashMap<Point, Node>();
 		this.dimension = dimension;
 		try {
 			buildTree(dataFile);

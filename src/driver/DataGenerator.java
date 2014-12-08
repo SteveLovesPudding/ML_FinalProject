@@ -14,13 +14,13 @@ public class DataGenerator {
 	private static int numJoints = 2;
 	private static String fileName = "data_twoArm_1000.txt";
 	public static void main(String[] args) throws IOException {
-		double[] armLengths = {2.0,1.0};
+		double[] armLengths = {3.0,1.0};
 		double[] randomConfigurations;
 		JointDirection[] joints = new JointDirection[numJoints];
 		/*for (int i=0; i < numJoints; i++) {
 			joints[i] = JointDirection.Y;
 		}*/
-		joints[0] = JointDirection.Y;
+		joints[0] = JointDirection.Y; 
 		joints[1] = JointDirection.Z;
 		
 		int numDataCreated = 0;

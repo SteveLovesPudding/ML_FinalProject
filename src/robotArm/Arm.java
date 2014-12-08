@@ -74,7 +74,7 @@ public class Arm {
 
 	/**
 	 * Moves the robot arm according to the angle.
-	 * 
+	 *
 	 * @param angles
 	 *            assumes that the angles are along x, y, z for one joint, then
 	 *            repeat for next joint {{x1,y1,z1},{x2,y2,z2}...{xn,yn,zn}}
@@ -96,27 +96,45 @@ public class Arm {
 			begin[0] = xend;
 			begin[1] = yend;
 			begin[2] = zend;
-
-			double[] vector = findOrientation(new double[] { x, y, z }, angle[i],
-					jointDirections[i]);
+			System.out.println("BEGIN");
+			for (double b : begin)
+				System.out.print(b + " ");
+			System.out.println();
+			double[] calcAngles = new double[i + 1];
+			JointDirection[] calcDirections = new JointDirection[i + 1];
+			System.out.println(calcDirections.length);
+			for (int j = 0; j <= i; j++) {
+				calcAngles[j] = angle[j];
+				calcDirections[j] = jointDirections[j];
+			}
+			double[] vector = findOrientation(calcAngles, calcDirections);
 			vector = convertToUnitVector(vector);
 			x = vector[0];
 			y = vector[1];
 			z = vector[2];
-
+			System.out.println("ORIENTATION");
+			for (double v : vector)
+				System.out.print(v + " ");
+			System.out.println();
 			double armLength = armLengths[i];
 
 			double[] end = new double[3];
 			end[0] = (xend += x * armLength);
 			end[1] = (yend += y * armLength);
 			end[2] = (zend += z * armLength);
-
+			xend = end[0];
+			yend = end[1];
+			zend = end[2];
+			System.out.println("END");
+			for (double e : end)
+				System.out.print(e + " ");
+			System.out.println();
 			armEnds.put(i, new double[][] { begin, end });
 
 			// System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
 			// + Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
-			//System.out.println("ARM END " + end[0] + " " + end[1] + " "
-			//		+ end[2]);
+			// System.out.println("ARM END " + end[0] + " " + end[1] + " "
+			// + end[2]);
 
 			// check each arm to make sure none intersect
 			for (int j = 1; j < i; j++) {
@@ -131,6 +149,134 @@ public class Arm {
 		position.setCoordinates(new double[] { xend, yend, zend });
 		return true;
 	}
+
+	// public boolean move(double[] angle, Position position) {
+	//
+	// double xend = 0, yend = 0, zend = 0;
+	// double xyAngle = 0, zxAngle = 0;
+	// Map<Integer, double[][]> armEnds = new HashMap<Integer, double[][]>();
+	// // check that enough dimensions are sent
+	// // default orientation
+	// double x = 1, y = 0, z = 0;
+	// for (int i = 0; i < armLengths.length; i++) {
+	//
+	// // {start x, start y, start z, end x, end y, end z}
+	// double[] begin = new double[3];
+	// begin[0] = xend;
+	// begin[1] = yend;
+	// begin[2] = zend;
+	//
+	// if (jointDirections[i] == JointDirection.Y) {
+	// zxAngle += angle[i];
+	// } else if (jointDirections[i] == JointDirection.Z) {
+	// xyAngle += angle[i];
+	// }
+	//
+	// double armLength = armLengths[i];
+	// double armX, armY, armZ;
+	// armY = armLength * Math.sin(xyAngle);
+	// armX = armLength * Math.cos(xyAngle);
+	// armZ = armLength * Math.sin(zxAngle);
+	// armY = armY * Math.cos(zxAngle);
+	// armX = armX * Math.cos(zxAngle);
+	// System.out.println("angle " + xyAngle + " " + zxAngle);
+	// System.out.println("arm: " + armX + " " + armY + " " + armZ);
+	// double[] end = new double[3];
+	// end[0] = (xend += armX);
+	// end[1] = (yend += armY);
+	// end[2] = (zend += armZ);
+	// xend = end[0];
+	// yend = end[1];
+	// zend = end[2];
+	// System.out.println("END");
+	// for (double e : end)
+	// System.out.print(e + " ");
+	// System.out.println();
+	// armEnds.put(i, new double[][] { begin, end });
+	//
+	// // System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
+	// // + Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
+	// // System.out.println("ARM END " + end[0] + " " + end[1] + " "
+	// // + end[2]);
+	//
+	// // check each arm to make sure none intersect
+	// for (int j = 1; j < i; j++) {
+	// double[][] arm = armEnds.get(j);
+	// // if intersect return false, no point storing position its
+	// // invalid
+	// if (intersects3D(arm[0], arm[1], begin, end))
+	// return false;
+	// }
+	// }
+	//
+	// position.setCoordinates(new double[] { xend, yend, zend });
+	// return true;
+	// }
+
+	// /**
+	// * Moves the robot arm according to the angle.
+	// *
+	// * @param angles
+	// * assumes that the angles are along x, y, z for one joint, then
+	// * repeat for next joint {{x1,y1,z1},{x2,y2,z2}...{xn,yn,zn}}
+	// * @param position
+	// * wrapper for returning the end position
+	// * @return true if movement is valid, false if invalid
+	// */
+	// public boolean move(double[] angle, Position position) {
+	//
+	// double xend = 0, yend = 0, zend = 0;
+	// Map<Integer, double[][]> armEnds = new HashMap<Integer, double[][]>();
+	// // check that enough dimensions are sent
+	// // default orientation
+	// double x = 1, y = 0, z = 0;
+	// for (int i = 0; i < armLengths.length; i++) {
+	//
+	// // {start x, start y, start z, end x, end y, end z}
+	// double[] begin = new double[3];
+	// begin[0] = xend;
+	// begin[1] = yend;
+	// begin[2] = zend;
+	// System.out.println("BEGIN");
+	// for (double b : begin)
+	// System.out.print(b + " ");
+	// System.out.println();
+	// if (jointDirections[i] == JointDirection.Y) {
+	// zend += armLengths[i] * Math.cos(angle[i]);
+	// xend += armLengths[i] * Math.sin(angle[i]);
+	// } else if (jointDirections[i] == JointDirection.Z) {
+	// xend += armLengths[i] * Math.cos(angle[i]);
+	// yend += armLengths[i] * Math.sin(angle[i]);
+	// }
+	//
+	// double[] end = new double[3];
+	// end[0] = xend;
+	// end[1] = yend;
+	// end[2] = zend;
+	// System.out.println("END");
+	// for (double e : end)
+	// System.out.print(e + " ");
+	// System.out.println();
+	// armEnds.put(i, new double[][] { begin, end });
+	//
+	// // System.out.println(Math.sqrt(Math.pow(x * armLength, 2)
+	// // + Math.pow(y * armLength, 2) + Math.pow(z * armLength, 2)));
+	// // System.out.println("ARM END " + end[0] + " " + end[1] + " "
+	// // + end[2]);
+	//
+	// // check each arm to make sure none intersect
+	// for (int j = 1; j < i; j++) {
+	// double[][] arm = armEnds.get(j);
+	// // if intersect return false, no point storing position its
+	// // invalid
+	// if (intersects3D(arm[0], arm[1], begin, end))
+	// return false;
+	// }
+	// }
+	//
+	// position.setCoordinates(new double[] { xend, yend, zend });
+	// return true;
+	// }
 
 	/**
 	 * 
@@ -188,38 +334,65 @@ public class Arm {
 	// return new double[] { x, y, z };
 	//
 	// }
+	//
+	// /**
+	// *
+	// * @param original
+	// * {x,y,z}
+	// * @param angle
+	// * [0, 2*pi]
+	// * @param direction
+	// * rotation direction
+	// * @return
+	// */
+	// private double[] findOrientation(double[] original, double angle,
+	// JointDirection direction) {
+	//
+	// double x = original[0], y = original[1], z = original[2];
+	//
+	// double newX, newY, newZ;
+	//
+	// // Rotates in vertical
+	// if (direction == JointDirection.Y) {
+	// newX = x * Math.cos(angle) + z * Math.sin(angle);
+	// newZ = x * -1.0 * Math.sin(angle) + z * Math.cos(angle);
+	// z = newZ;
+	// x = newX;
+	// // Rotates in horizontal
+	// } else if (direction == JointDirection.Z) {
+	// newX = x * Math.cos(angle) + y * -1.0 * Math.sin(angle);
+	// newY = x * Math.sin(angle) + y * Math.cos(angle);
+	// x = newX;
+	// y = newY;
+	// }
+	// return new double[] { x, y, z };
+	// }
 
-	/**
-	 * 
-	 * @param original
-	 *            {x,y,z}
-	 * @param angle
-	 *            [0, 2*pi]
-	 * @param direction
-	 *            rotation direction
-	 * @return
-	 */
-	private double[] findOrientation(double[] original, double angle,
-			JointDirection direction) {
+	private double[] findOrientation(double[] angles,
+			JointDirection[] directions) {
 
-		double x = original[0], y = original[1], z = original[2];
+		double[] vector = { 1, 0, 0 };
+		// chronological order
+		System.out.println(angles.length);
+		System.out.println(directions.length);
+		for (int i = angles.length - 1; i >= 0; i--) {
+			double x = vector[0], y = vector[1], z = vector[2];
+			if (directions[i] == JointDirection.Y) {
 
-		double newX, newY, newZ;
+				vector[0] = x * Math.cos(angles[i]) + z * Math.sin(angles[i]);
+				vector[2] = x * -1.0 * Math.sin(angles[i]) + z
+						* Math.cos(angles[i]);
 
-		// Rotates in vertical
-		if (direction == JointDirection.Y) {
-			newZ = z * Math.cos(angle) - x * Math.sin(angle);
-			newX = z * Math.sin(angle) + x * Math.cos(angle);
-			z = newZ;
-			x = newX;
-			// Rotates in horizontal
-		} else if (direction == JointDirection.Z) {
-			newX = x * Math.cos(angle) - y * Math.sin(angle);
-			newY = x * Math.sin(angle) + y * Math.cos(angle);
-			x = newX;
-			y = newY;
+			} else if (directions[i] == JointDirection.Z) {
+
+				vector[0] = x * Math.cos(angles[i]) + y * -1.0
+						* Math.sin(angles[i]);
+				vector[1] = x * Math.sin(angles[i]) + y * Math.cos(angles[i]);
+			}
+
 		}
-		return new double[] { x, y, z };
+
+		return vector;
 	}
 
 	/**
