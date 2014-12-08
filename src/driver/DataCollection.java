@@ -1,7 +1,6 @@
 package driver;
 
 import nearestNeighbor.NearestNeighborAlgorithm;
-import nearestNeighbor.Node;
 import robotArm.Arm;
 import robotArm.JointDirection;
 import robotArm.Position;
