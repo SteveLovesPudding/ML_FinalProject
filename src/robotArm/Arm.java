@@ -43,7 +43,6 @@ public class Arm {
 	 * @return true if movement is valid, false if invalid
 	 */
 	public boolean move(double[] angle, Position position) {
-
 		double xend = 0, yend = 0, zend = 0;
 		Map<Integer, double[][]> armEnds = new HashMap<Integer, double[][]>();
 		// check that enough dimensions are sent

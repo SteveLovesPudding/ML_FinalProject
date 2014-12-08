@@ -129,7 +129,7 @@ public class DataGenerator {
 			// System.out.println(""+jointConfigurations[0][0] +" "+
 			// jointConfigurations[0][1] +" "+ jointConfigurations[0][2]);
 			randomConfigurations = createRandomConfiguration();
-			if (arm.move(createRandomConfiguration(), p)) {
+			if (arm.move(randomConfigurations, p)) {
 				// if the arm moved successfully, # separates each joint (ex.
 				// q1x,q1y,q1z # q2x,q2y,q2z #...)
 				for (int joint = 0; joint < numJoints; joint++) {
